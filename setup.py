@@ -110,6 +110,8 @@ setup(
         # Plotting learning curves
         "matplotlib",
         "stable_baselines3",
+        "easydict",
+        "transformers",
     ],
     extras_require={
         "tests": [

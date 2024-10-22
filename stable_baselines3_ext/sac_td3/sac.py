@@ -15,7 +15,7 @@ from stable_baselines3.common.type_aliases import GymEnv, MaybeCallback, Schedul
 from stable_baselines3.common.utils import get_parameters_by_name, polyak_update
 # from stable_baselines3.sac.policies import Actor, CnnPolicy, MlpPolicy, MultiInputPolicy, SACPolicy
 
-from stable_baselines3.sac.sac import *
+# from stable_baselines3.sac.sac import *
 from stable_baselines3_ext.sac_td3.policies import ActorwithBN, MlpPolicywithBN, CNNPolicywithBN, MultiInputPolicywithBN, SACPolicywithBN
 
 

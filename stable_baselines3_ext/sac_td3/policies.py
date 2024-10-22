@@ -1,10 +1,27 @@
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
+import torch as th
 from gymnasium import spaces
 from torch import nn
 
-from stable_baselines3.sac.policies import *
-from stable_baselines3.sac.policies import CnnPolicy, MultiInputPolicy, MlpPolicy, Actor
+from stable_baselines3.common.distributions import SquashedDiagGaussianDistribution, StateDependentNoiseDistribution
+from stable_baselines3.common.policies import BasePolicy, ContinuousCritic
+from stable_baselines3.common.preprocessing import get_action_dim
+from stable_baselines3.common.torch_layers import (
+    BaseFeaturesExtractor,
+    CombinedExtractor,
+    FlattenExtractor,
+    NatureCNN,
+    create_mlp,
+    get_actor_critic_arch,
+)
+from stable_baselines3.common.type_aliases import PyTorchObs, Schedule
+
+from stable_baselines3.sac.policies import Actor, SACPolicy
+
+# CAP the standard deviation of the actor
+LOG_STD_MAX = 2
+LOG_STD_MIN = -20
 
 
 class ActorwithBN(Actor):
