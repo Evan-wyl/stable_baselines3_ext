@@ -39,7 +39,7 @@ from lightning_fabric.utilities.rank_zero import _get_rank
 from torch import Tensor, nn
 
 from isaac_utils import rotations, torch_utils
-from phys_anim.utils.device_dtype_mixin import DeviceDtypeModuleMixin
+from stable_baselines3_ext.utils.device_dtype_mixin import DeviceDtypeModuleMixin
 from poselib.core.rotation3d import quat_angle_axis, quat_inverse, quat_mul_norm
 from poselib.skeleton.skeleton3d import SkeletonMotion, SkeletonState
 

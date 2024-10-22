@@ -3,7 +3,9 @@ Extensions of [Stable Baselines3](https://github.com/DLR-RM/stable-baselines3)
 
 
 
-## PoseLib
+## Other Libraries
+
+### PoseLib
 
 **STEP 0:**
 
@@ -15,6 +17,23 @@ git clone https://github.com/Evan-wyl/poselib
 
 ```
 cd poselib/
+pip install -e .
+```
+
+
+
+### isaac_utils
+
+**STEP 0:**
+
+```
+git clone https://github.com/Evan-wyl/isaac_utils
+```
+
+**STEP 1:**
+
+```
+cd isaac_utils/
 pip install -e .
 ```
 
