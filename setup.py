@@ -18,7 +18,7 @@ These algorithms will make it easier for the research community and industry to 
 ## Links
 
 Repository:
-https://github.com/DLR-RM/stable-baselines3
+https://github.com/Evan-wyl/stable_baselines3_ext
 
 Blog post:
 https://araffin.github.io/post/sb3/
@@ -139,7 +139,7 @@ setup(
     },
     description="Pytorch version of Stable Baselines Extensions, implementations of reinforcement learning algorithms.",
     author="Antonin Raffin",
-    url="https://github.com/DLR-RM/stable-baselines3",
+    url="https://github.com/Evan-wyl/stable_baselines3_ext",
     author_email="antonin.raffin@dlr.de",
     keywords="reinforcement-learning-algorithms reinforcement-learning machine-learning "
     "gymnasium gym openai stable baselines toolbox python data-science",
@@ -150,7 +150,7 @@ setup(
     python_requires=">=3.8",
     # PyPI package information.
     project_urls={
-        "Code": "https://github.com/DLR-RM/stable-baselines3",
+        "Code": "https://github.com/Evan-wyl/stable_baselines3_ext",
         "Documentation": "https://stable-baselines3.readthedocs.io/",
         "Changelog": "https://stable-baselines3.readthedocs.io/en/master/misc/changelog.html",
         "SB3-Contrib": "https://github.com/Stable-Baselines-Team/stable-baselines3-contrib",
