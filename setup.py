@@ -112,6 +112,7 @@ setup(
         "stable_baselines3",
         "easydict",
         "transformers",
+        "lightning_fabric"
     ],
     extras_require={
         "tests": [

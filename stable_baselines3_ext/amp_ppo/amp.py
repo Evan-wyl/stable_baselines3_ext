@@ -6,16 +6,17 @@ import torch as th
 from gymnasium import spaces
 from torch.nn import functional as F
 
-from stable_baselines3.common.buffers import RolloutBuffer
+from stable_baselines3.common.buffers import DictReplayBuffer, ReplayBuffer, RolloutBuffer
 from stable_baselines3.common.on_policy_algorithm import OnPolicyAlgorithm
 from stable_baselines3.common.policies import ActorCriticCnnPolicy, ActorCriticPolicy, BasePolicy, MultiInputActorCriticPolicy
 from stable_baselines3.common.type_aliases import GymEnv, MaybeCallback, Schedule
 from stable_baselines3.common.utils import explained_variance, get_schedule_fn
-from stable_baselines3.ppo.ppo import *
+# from stable_baselines3.ppo.ppo import *
 
 from stable_baselines3.ppo import PPO
 
 from stable_baselines3_ext.amp_ppo.discriminator import AMPDiscriminator
+from stable_baselines3_ext.utils.motion_lib import MotionLib
 
 
 class AMPPPO(PPO):
@@ -48,6 +49,7 @@ class AMPPPO(PPO):
         device: Union[th.device, str] = "auto",
         _init_setup_model: bool = True,
         discriminator_kwargs: Optional[Dict[str, Any]] = None,
+        motion_file: str = None,
     ):
         super().__init__(
             policy,
@@ -78,7 +80,40 @@ class AMPPPO(PPO):
             _init_setup_model,
         )
 
+        # constructing motion lib
+        dof_body_ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        dof_offsets = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36]
+        key_body_ids = [6, 12]
+        spawned_scene_ids = None
+
+        self.motion_lib = MotionLib(
+            motion_file,
+            ref_height_adjust=0.,
+            fix_motion_heights=True,
+            dof_body_ids=dof_body_ids,
+            dof_offsets=dof_offsets,
+            key_body_ids=key_body_ids,
+            device=self.device,
+            spawned_scene_ids=spawned_scene_ids,
+            skeleton_tree=None
+        )
+
         self.discriminator = AMPDiscriminator(**discriminator_kwargs)
+        self.discriminator.to(self.device)
+
+        amp_observation_space = self.env.unwrapped.get_amp_observations()
+        if isinstance(self.observation_space, spaces.Dict):
+            self.replay_buffer_class = DictReplayBuffer
+        else:
+            self.replay_buffer_class = ReplayBuffer
+
+        self.discriminator_replay_buffer = self.replay_buffer_class(
+            buffer_size=self.n_steps,
+            observation_space=self.observation_space,
+            action_space=self.action_space,
+            device=self.device,
+            n_envs=self.n_envs,
+        )
 
     def train(self) -> None:
         """
