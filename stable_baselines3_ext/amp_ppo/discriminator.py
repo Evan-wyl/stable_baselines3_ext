@@ -45,7 +45,7 @@ class AMPDiscriminator(nn.Module):
         grad_pen = lambda_ * (grad.norm(2, dim=1) - 0).pow(2).mean()
         return grad_pen
 
-    def predict_amp_reward(self, state, next_state, task_reward, normalizer=None):
+    def predict_amp_reward(self, state, next_state, normalizer=None):
         with th.no_grad():
             self.eval()
             if normalizer is not None:
@@ -54,8 +54,8 @@ class AMPDiscriminator(nn.Module):
 
             d = self.amp_linear(self.trunk(th.cat([state, next_state], dim=-1)))
             reward = self.amp_reward_coef * th.clamp(1 - (1 / 4) * th.square(d - 1), min=0)
-            if self.task_reward_lerp > 0:
-                reward = self._lerp_reward(reward, task_reward.unsqueeze(-1))
+            # if self.task_reward_lerp > 0:
+            #     reward = self._lerp_reward(reward, task_reward.unsqueeze(-1))
             self.train()
         return reward.squeeze(), d
 
