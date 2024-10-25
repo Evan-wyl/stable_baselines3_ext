@@ -1,5 +1,10 @@
 # stable_baselines3_ext
 
+This repository is extensions of [Stable Baselines3](https://github.com/DLR-RM/stable-baselines3) which currently including algorithms:
+
+- [AMP](https://github.com/nv-tlabs/ASE)
+- SAC+TD3
+
 
 
 ## Installation
