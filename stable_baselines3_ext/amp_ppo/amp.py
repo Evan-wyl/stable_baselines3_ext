@@ -6,7 +6,7 @@ import torch as th
 from gymnasium import spaces
 from torch.nn import functional as F
 
-from stable_baselines3.common.buffers import DictReplayBuffer, ReplayBuffer, RolloutBuffer
+from stable_baselines3.common.buffers import DictReplayBuffer, ReplayBuffer, RolloutBuffer, ReplayBufferSamples
 from stable_baselines3.common.on_policy_algorithm import OnPolicyAlgorithm
 from stable_baselines3.common.policies import ActorCriticCnnPolicy, ActorCriticPolicy, BasePolicy, MultiInputActorCriticPolicy
 from stable_baselines3.common.type_aliases import GymEnv, MaybeCallback, Schedule
@@ -21,6 +21,7 @@ from stable_baselines3.ppo import PPO
 
 from stable_baselines3_ext.amp_ppo.discriminator import AMPDiscriminator
 from stable_baselines3_ext.utils.motion_lib import MotionLib
+from stable_baselines3_ext.utils.motion_lib import SkeletonMotion
 
 
 class AMPPPO(PPO):
@@ -110,8 +111,7 @@ class AMPPPO(PPO):
             observation_space=self.observation_space,
             action_space=self.action_space,
             device=self.device,
-            n_envs=self.n_envs,
-        )
+            n_envs=self.n_envs)
 
     def collect_rollouts(
         self,
@@ -245,6 +245,20 @@ class AMPPPO(PPO):
 
         return True
 
+    def compute_discriminator_loss(self, batch_size: int):
+        replay_data = self.amp_replay_buffer.sample(batch_size)
+        obs_policy_arr = replay_data.observations
+        next_obs_policy_arr = replay_data.next_observations
+
+        expert_data_ids = self.motion_lib.sample_motions(batch_size)
+        expert_data = self.motion_lib.get_motion(expert_data_ids)
+        if isinstance(expert_data, SkeletonMotion):
+            expert_data.obs
+        else:
+            raise Exception("expert_data is not a instance of SkeletonMotion.")
+
+        return loss
+
     def train(self) -> None:
         """
         Update policy using the currently gathered rollout buffer.
@@ -268,7 +282,7 @@ class AMPPPO(PPO):
         for epoch in range(self.n_epochs):
             approx_kl_divs = []
             # Do a complete pass on the rollout buffer
-            for rollout_data in self.rollout_buffer.get(self.batch_size):
+            for rollout_data, replay_data in self.rollout_buffer.get(self.batch_size):
                 actions = rollout_data.actions
                 if isinstance(self.action_space, spaces.Discrete):
                     # Convert discrete action from float to long
@@ -312,7 +326,7 @@ class AMPPPO(PPO):
                 value_loss = F.mse_loss(rollout_data.returns, values_pred)
                 value_losses.append(value_loss.item())
 
-                # Entropy loss favor exploration
+                # Entropy loss favor exploration+
                 if entropy is None:
                     # Approximate entropy when no analytical form
                     entropy_loss = -th.mean(-log_prob)
@@ -322,6 +336,10 @@ class AMPPPO(PPO):
                 entropy_losses.append(entropy_loss.item())
 
                 loss = policy_loss + self.ent_coef * entropy_loss + self.vf_coef * value_loss
+
+                amp_loss = self.compute_discriminator_loss(self.batch_size)
+
+                loss += amp_loss
 
                 # Calculate approximate form of reverse KL Divergence for early stopping
                 # see issue #417: https://github.com/DLR-RM/stable-baselines3/issues/417

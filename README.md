@@ -55,3 +55,11 @@ pip install -e .
 ```
 
 </details>
+
+
+
+## References and Thanks
+
+This project repository builds upon the shoulders of giants.
+
+- [ProtoMotions](https://github.com/NVlabs/ProtoMotions) for reference AMP code. 
